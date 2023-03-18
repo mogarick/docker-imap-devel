@@ -15,6 +15,7 @@ services:
     - MAILNAME=example.com
     - MAIL_ADDRESS=bob@example.com
     - MAIL_PASS=password
+    restart: always
     volumes:
     - imap_mail:/var/mail
     - imap_certs:/etc/ssl
