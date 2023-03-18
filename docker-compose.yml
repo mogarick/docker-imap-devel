@@ -1,6 +1,5 @@
 version: '2'
 
-
 services:
   imap:
     # Uncomment this for build image in local
@@ -16,3 +15,11 @@ services:
     - MAILNAME=example.com
     - MAIL_ADDRESS=bob@example.com
     - MAIL_PASS=password
+    volumes:
+    - imap_mail:/var/mail
+    - imap_certs:/etc/ssl
+volumes:
+  imap_certs:
+    driver: local
+  imap_mail:
+    driver: local
