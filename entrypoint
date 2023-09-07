@@ -81,7 +81,7 @@ trap "_stop" SIGINT SIGTERM SIGHUP
 _log "Docker entrypoint start"
 
 # Configuring Postfix
-
+echo "Configuring Postfix..."
 if [ -n "$MAILNAME" ]; then
     echo $MAILNAME > /etc/mailname;
     /usr/sbin/postconf -e mydomain=$MAILNAME
@@ -112,23 +112,27 @@ fi
 /usr/sbin/postconf compatibility_level=2
 
 # Create user account
+echo "# Create user account"
 if [ -n "$MAIL_ADDRESS" ]; then
     _account_add "$MAIL_ADDRESS" "$MAIL_PASS"
     _add_line "$MAIL_ADDRESS" "/$MAIL_ADDRESS/ $MAIL_ADDRESS" /etc/postfix/virtual_regexp
 fi
 
 # Create debug account
+echo "# Create debug account"
 _account_add "$DEBUG_ADDRESS" "$DEBUG_PASS"
 
 # Force to send all emails to debug email address, no email to outside
+echo "# Force to send all emails to debug email address, no email to outside"
 _add_line "$DEBUG_ADDRESS" "/.+@.+/ $DEBUG_ADDRESS" /etc/postfix/virtual_regexp
-
+echo "#postmap configs"
 /usr/sbin/postmap /etc/postfix/virtual_regexp
 /usr/sbin/postmap /etc/postfix/virtual
 /usr/sbin/postmap /etc/postfix/vmailbox
 /usr/sbin/postmap /etc/postfix/sender_canonical_regexp
 
 # Configuring Dovecot
+echo "# Configuring Dovecot"
 cp -a /usr/share/dovecot/protocols.d /etc/dovecot/
 sed -i -e 's/include_try \/usr\/share\/dovecot\/protocols\.d/include_try \/etc\/dovecot\/protocols\.d/g' /etc/dovecot/dovecot.conf
 sed -i -e 's/^.*postmaster_address.*/postmaster_address = '${POSTMASTER_ADDRESS}'/g' /etc/dovecot/conf.d/15-lda.conf
