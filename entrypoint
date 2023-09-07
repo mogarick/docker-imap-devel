@@ -21,7 +21,10 @@ _log() {
     local logfile=/var/log/mail.log
     if [ ! -f $logfile ]; then
         touch $logfile
-        chown syslog:adm $logfile
+        # Debian 11
+        chown root:adm $logfile
+        # Ubuntu
+        # chown syslog:adm $logfile
         chmod 640 $logfile
     fi
     echo "$(date '+%b %e %H:%I:%S') $(hostname) entrypoint[$$]: $1" >> $logfile
@@ -141,8 +144,13 @@ sed -i -e 's/^.*postmaster_address.*/  postmaster_address = '${POSTMASTER_ADDRES
 
 _log "Docker entrypoint configured"
 
+
 # Start syslog daemon
-/etc/init.d/rsyslog start
+# Debian 11
+rsyslogd
+# Ubuntu
+# /etc/init.d/rsyslog start
+
 
 # Start Postfix daemon
 /etc/init.d/postfix start

@@ -12,12 +12,12 @@ RUN set -x; \
     && echo "postfix postfix/mailname string $MAILNAME" | debconf-set-selections \
     && echo "postfix postfix/main_mailer_type string 'Internet Site'" | debconf-set-selections \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        postfix \
-        dovecot-core \
-        dovecot-imapd \
-        dovecot-lmtpd \
-        rsyslog \
-        iproute2 \
+    postfix \
+    dovecot-core \
+    dovecot-imapd \
+    dovecot-lmtpd \
+    rsyslog \
+    iproute2 \
     && apt-get clean -y && apt-get autoclean -y && apt-get autoremove -y \
     && rm -rf /var/cache/apt/archives/* /var/cache/apt/*.bin /var/lib/apt/lists/* \
     && rm -rf /usr/share/man/* && rm -rf /usr/share/doc/* \
@@ -38,6 +38,8 @@ RUN chmod a+rx /usr/local/bin/entrypoint
 
 VOLUME ["/var/mail"]
 EXPOSE 25 143 993
-
+# Exclude imklog module from logging to our mail.log file here because it requires kernel privileges
+# SEE: https://stackoverflow.com/a/60265997/2278979
+RUN sed -i '/imklog/s/^/#/' /etc/rsyslog.conf
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 CMD ["tail", "-fn", "0", "/var/log/mail.log"]
